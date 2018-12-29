@@ -18,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'Dingo\Api\Event\ResponseWasMorphed' => [
+            'App\Listeners\AddBusinessStatusToResponse',
+        ],
     ];
 
     /**

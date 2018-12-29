@@ -41,6 +41,11 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
+
+        'api.common' => [
+            //'client',//校验access token
+            'businessFormatOutput',//标记请求，使响应格式化
+        ]
     ];
 
     /**
@@ -60,6 +65,8 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        'businessFormatOutput' => \App\Http\Middleware\BusinessFormatOutput::class,
     ];
 
     /**
