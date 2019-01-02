@@ -12,7 +12,7 @@ namespace App\Models\DbBlog;
 
 use App\Models\AppModel;
 
-class BaseModel
+class BaseModel extends AppModel
 {
     protected $connection = 'db_blog';
 }
