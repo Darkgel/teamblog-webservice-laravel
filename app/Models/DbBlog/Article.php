@@ -24,11 +24,10 @@ namespace App\Models\DbBlog;
  */
 class Article extends BaseModel
 {
-    protected $table='dg_banner';
+    protected $table='article';
 
-    const STATUS_DELETED = 0;
-    const STATUS_DRAFT = 1;
-    const STATUS_PUBLISHED = 2;
+    const STATUS_DRAFT = 0;
+    const STATUS_PUBLISHED = 1;
 
 
 }
