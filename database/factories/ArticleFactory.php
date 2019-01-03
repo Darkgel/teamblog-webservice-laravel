@@ -21,7 +21,7 @@ $factory->define(Article::class, function (Faker $faker) {
         'summary' => $faker->paragraph,
         'content_md' => $faker->paragraphs(10, true),
         'content_html' => $faker->paragraphs(10, true),
-        'tags' => '',
+        'tags_json' => '',
         'status' => $faker->randomElement([0,1]),
     ];
 });

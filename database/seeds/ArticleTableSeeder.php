@@ -41,7 +41,7 @@ class ArticleTableSeeder extends Seeder
                     ]);
             }
             $tagsString = json_encode($tagsJsonArray, JSON_UNESCAPED_UNICODE);
-            $article->tags = $tagsString;
+            $article->tags_json = $tagsString;
             $article->save();
         }
     }

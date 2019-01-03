@@ -12,15 +12,13 @@ namespace App\Models\DbBlog;
  * @property int $id
  * @property string $title
  * @property string $author
- * @property int $updated_at
- * @property int $created_at
  * @property string $summary
  * @property string $content_md
  * @property string $content_html
- * @property string $tags
+ * @property string $tags_json
  * @property int $status
  *
- * @property \Illuminate\Database\Eloquent\Collection $images 专题图片表
+ * @property Tag[] $tags 文章关联的标签对象
  */
 class Article extends BaseModel
 {
@@ -29,5 +27,11 @@ class Article extends BaseModel
     const STATUS_DRAFT = 0;
     const STATUS_PUBLISHED = 1;
 
+    /**
+     * 标签对象
+     */
+    public function tags(){
+        return $this->belongsToMany('App\Models\DbBlog\Tag', 'article_tag_association', 'article_id', 'tag_id');
+    }
 
 }

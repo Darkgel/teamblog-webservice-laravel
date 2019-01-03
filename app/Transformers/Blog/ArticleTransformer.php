@@ -13,18 +13,41 @@ use App\Transformers\AppTransformer;
 
 class ArticleTransformer extends AppTransformer
 {
+    /**
+     * List of resources possible to include
+     *
+     * @var array
+     */
+    protected $availableIncludes = [
+        'tags'
+    ];
+
     public function transform(Article $article){
         return [
             'id' => $article->id,
             'title' => $article->title,
             'author' => $article->author,
-            'updatedAt' => (string)$article->updated_at,
-            'createdAt' => (string)$article->created_at,
+            'updatedAt' => $article->updated_at->timestamp,
+            'createdAt' => $article->created_at->timestamp,
             'summary' => $article->summary,
             'contentMd' => $article->content_md,
             'contentHtml' => $article->content_html,
-            'tags' => $article->tags,
+            'tagsJson' => $article->tags_json,
             'status'=> $article->status,
         ];
+    }
+
+    /**
+     * Include Tags
+     *
+     * @param Article $article
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeTags(Article $article)
+    {
+        $tags = $article->tags;
+
+        return $this->collection($tags, new TagTransformer());
     }
 }

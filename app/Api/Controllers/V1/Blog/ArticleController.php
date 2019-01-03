@@ -24,7 +24,7 @@ class ArticleController extends V1Controller
     /**
      * @SWG\Get(
      *     path="/blog/article/{id}",
-     *     summary="获取文章详情",
+     *     summary="文章详情",
      *     tags={"Blog/Article"},
      *     description="通过文章id获取相应的文章详情",
      *     operationId="V1.Blog.Article.detail",
@@ -48,7 +48,7 @@ class ArticleController extends V1Controller
      *                      @SWG\Property(property="createdAt",type="integer",description="创建时间",),
      *                      @SWG\Property(property="summary",type="string",description="文章摘要",),
      *                      @SWG\Property(property="contentHtml",type="string",description="文章内容（html格式）",),
-     *                      @SWG\Property(property="tags",type="string",description="标签",),
+     *                      @SWG\Property(property="tagsJson",type="string",description="标签，json字符串",),
      *                      @SWG\Property(property="status",type="integer", description="状态",),
      *                 ),
      *              ),

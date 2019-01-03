@@ -29,7 +29,7 @@ class CreateArticleTable extends Migration
             $table->string('summary', 512)->comment('文章摘要');
             $table->mediumText('content_md')->comment('文章内容(markdown格式)');
             $table->mediumText('content_html')->comment('文章内容(html格式)');
-            $table->string('tags', 512)->comment('文章标签，多个标签组成的字符串');
+            $table->string('tags_json', 512)->comment('文章标签，包含多个标签组成的json字符串');
             $table->tinyInteger('status', false, true)->comment('文章状态，状态定义参考文档');
         });
 
