@@ -144,7 +144,7 @@ class TagController extends V1Controller
             ]);
             if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
 
-            if($tagRepository->updateTag(intval($id), $inputData)){//业务逻辑执行成功
+            if($tagRepository->updateTagById(intval($id), $inputData)){//业务逻辑执行成功
                 return $this->response->array([]);
             }else{
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
@@ -162,6 +162,15 @@ class TagController extends V1Controller
      * @date 2019/1/3
      */
     public function delete(TagRepository $tagRepository, Request $request, $id){
-
+        try{
+            if($tagRepository->deleteTagById($id)){
+                return $this->response->array([]);
+            }else{
+                throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }
+        } catch (BusinessException $e){
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
     }
 }

@@ -53,12 +53,27 @@ class TagRepository extends AppRepository
      *
      * @return bool
      */
-    public function updateTag($id, $tagData){
+    public function updateTagById($id, $tagData){
         /** @var $model Tag */
         $model = Tag::find($id);
         //不允许修改name,id
         unset($tagData['id'], $tagData['name']);
         $model->fillable(['description',]);
         return $model->update($tagData);
+    }
+
+    /**
+     * 删除标签
+     * @param int $id tag id
+     * @return bool
+     */
+    public function deleteTagById($id){
+        try{
+            /** @var $model Tag */
+            $model = Tag::find($id);
+            return $model->delete();
+        } catch (\Exception $e){
+            return false;
+        }
     }
 }
