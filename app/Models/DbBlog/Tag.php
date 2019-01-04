@@ -17,9 +17,21 @@ namespace App\Models\DbBlog;
  */
 class Tag extends BaseModel
 {
+    protected $fillable = ['name', 'description'];
+
     protected $table='tag';
 
     public function articles(){
         return $this->belongsToMany('App\Models\DbBlog\Article', 'article_tag_association', 'tag_id', 'article_id');
+    }
+
+    /**
+     * @return static
+     */
+    public static function getDefaultInstance(){
+        $model = new static;
+        $model->description = '';
+
+        return $model;
     }
 }

@@ -10,6 +10,7 @@ namespace App\Repositories\Blog;
 
 use App\Models\DbBlog\Tag;
 use App\Repositories\AppRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TagRepository extends AppRepository
 {
@@ -19,7 +20,45 @@ class TagRepository extends AppRepository
      */
     public function getTagById($id){
         $tag = Tag::find($id);
-
         return $tag;
+    }
+
+    /**
+     * @param int $pageNum
+     * @param int $pageSize
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getTags($pageNum, $pageSize){
+        $models = Tag::paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        return $models;
+    }
+
+    /**
+     * 创建标签
+     * @param array $tagData
+     *
+     * @return bool
+     */
+    public function createTag($tagData){
+        $model = Tag::getDefaultInstance();
+        $model->fill($tagData);
+        return $model->save();
+    }
+
+    /**
+     * 更新标签
+     * @param int $id tag id
+     * @param array $tagData
+     *
+     * @return bool
+     */
+    public function updateTag($id, $tagData){
+        /** @var $model Tag */
+        $model = Tag::find($id);
+        //不允许修改name,id
+        unset($tagData['id'], $tagData['name']);
+        $model->fillable(['description',]);
+        return $model->update($tagData);
     }
 }

@@ -13,6 +13,7 @@ use App\Repositories\Blog\ArticleRepository;
 use App\Exceptions\BusinessException;
 use App\Transformers\Blog\ArticleTransformer;
 use Enum\ErrorCode;
+use Dingo\Api\Http\Request;
 
 class ArticleController extends V1Controller
 {
@@ -69,6 +70,33 @@ class ArticleController extends V1Controller
 
             return $this->response
                 ->item($article, new ArticleTransformer())
+                ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 文章列表
+     * @author darkgel
+     * @date 2019/1/3
+     */
+    public function index(ArticleRepository $articleRepository, Request $request){
+        try{
+            $pageNum = intval($request->query('pageNum', 1));
+            $pageSize = intval($request->query('pageSize', 15));
+
+            $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize;
+            if(\Cache::has($cacheKey)){
+                $content = \Cache::get($cacheKey);
+                return $this->response->array($content);
+            }
+            $articles = $articleRepository->getArticles($pageNum, $pageSize);
+
+            return $this->response
+                ->paginator($articles, new ArticleTransformer())
                 ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
 
         } catch (BusinessException $e) {

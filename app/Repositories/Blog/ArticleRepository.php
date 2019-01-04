@@ -10,6 +10,7 @@ namespace App\Repositories\Blog;
 
 use App\Models\DbBlog\Article;
 use App\Repositories\AppRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArticleRepository extends AppRepository
 {
@@ -18,8 +19,18 @@ class ArticleRepository extends AppRepository
      * @return Article|null
      */
     public function getArticleById($id){
-        $article = Article::find($id);
+        $model = Article::find($id);
+        return $model;
+    }
 
-        return $article;
+    /**
+     * @param int $pageNum
+     * @param int $pageSize
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getArticles($pageNum, $pageSize){
+        $models = Article::paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        return $models;
     }
 }

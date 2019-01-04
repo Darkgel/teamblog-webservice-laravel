@@ -13,6 +13,7 @@ use App\Exceptions\BusinessException;
 use Enum\ErrorCode;
 use App\Transformers\Blog\TagTransformer;
 use App\Repositories\Blog\TagRepository;
+use Dingo\Api\Http\Request;
 
 class TagController extends V1Controller
 {
@@ -71,5 +72,96 @@ class TagController extends V1Controller
             return $this->response->array($e->getExtra())
                 ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
         }
+    }
+
+    /**
+     * 标签列表
+     * @author darkgel
+     * @date 2019/1/3
+     */
+    public function index(TagRepository $tagRepository, Request $request){
+        try{
+            $pageNum = intval($request->query('pageNum', 1));
+            $pageSize = intval($request->query('pageSize', 15));
+
+            $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize;
+            if(\Cache::has($cacheKey)){
+                $content = \Cache::get($cacheKey);
+                return $this->response->array($content);
+            }
+            $tags = $tagRepository->getTags($pageNum, $pageSize);
+
+            return $this->response
+                ->paginator($tags, new TagTransformer())
+                ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 创建标签
+     * @author Darkgel
+     * @date 2019/1/3
+     */
+    public function create(TagRepository $tagRepository, Request $request){
+        try{
+            $postData = $request->post();
+            //校验数据有效性
+            /** @var \Illuminate\Validation\Validator $validator*/
+            $validator = \Validator::make($postData, [
+                'name' => 'required|max:128|unique:db_blog.tag,name',
+                'description' => 'max:1024'
+            ]);
+            if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
+
+            if($tagRepository->createTag($postData)){//业务逻辑执行成功
+                return $this->response->array([]);
+            }else{
+                throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }
+
+        } catch (BusinessException $e){
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 更新标签
+     * @author Darkgel
+     * @date 2019/1/3
+     */
+    public function update(TagRepository $tagRepository, Request $request, $id){
+        try{
+            $inputData = $request->input();
+            //校验数据有效性
+            /** @var \Illuminate\Validation\Validator $validator*/
+            $validator = \Validator::make($inputData, [
+                'description' => 'max:1024',
+            ]);
+            if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
+
+            if($tagRepository->updateTag(intval($id), $inputData)){//业务逻辑执行成功
+                return $this->response->array([]);
+            }else{
+                throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }
+
+        } catch (BusinessException $e){
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 删除标签
+     * @author Darkgel
+     * @date 2019/1/3
+     */
+    public function delete(TagRepository $tagRepository, Request $request, $id){
+
     }
 }
