@@ -9,6 +9,7 @@
 namespace App\Api\Controllers\V1\Blog;
 
 use App\Api\Controllers\V1\V1Controller;
+use App\Models\DbBlog\Article;
 use App\Repositories\Blog\ArticleRepository;
 use App\Exceptions\BusinessException;
 use App\Transformers\Blog\ArticleTransformer;
@@ -98,6 +99,46 @@ class ArticleController extends V1Controller
             return $this->response
                 ->paginator($articles, new ArticleTransformer())
                 ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    public function save(ArticleRepository $articleRepository, Request $request){
+        try{
+            $status = $request->post('status', Article::STATUS_DRAFT);
+            $postData = $request->post();
+            //校验数据有效性
+            /** @var \Illuminate\Validation\Validator $validator*/
+            $validator = \Validator::make($postData, [
+                'title' => 'required|max:255',
+                'author' => 'required|max:128',
+                'summary'=> 'max:512',
+                'tags' => 'array',
+            ]);
+            if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
+
+            if($articleRepository->save($postData, $status)){//业务逻辑执行成功
+                return $this->response->array([]);
+            }else{
+                throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    public function delete(ArticleRepository $articleRepository, $id){
+        try{
+            if($articleRepository->deleteArticleById($id)){
+                return $this->response->array([]);
+            }else{
+                throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }
 
         } catch (BusinessException $e) {
             return $this->response->array($e->getExtra())

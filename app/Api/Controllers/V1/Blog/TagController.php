@@ -161,7 +161,7 @@ class TagController extends V1Controller
      * @author Darkgel
      * @date 2019/1/3
      */
-    public function delete(TagRepository $tagRepository, Request $request, $id){
+    public function delete(TagRepository $tagRepository, $id){
         try{
             if($tagRepository->deleteTagById($id)){
                 return $this->response->array([]);

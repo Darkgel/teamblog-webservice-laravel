@@ -14,6 +14,8 @@ $api->version('v1', ['namespace' => 'App\Api\Controllers\V1', 'middleware' => ['
         $api->group(['prefix' => 'articles'], function (Router $api){
             $api->get('{id}', 'ArticleController@detail');
             $api->get('/', 'ArticleController@index');
+            $api->post('/', 'ArticleController@save');
+            $api->delete('{id}', 'ArticleController@delete');
         });
 
         $api->group(['prefix' => 'tags'], function (Router $api){

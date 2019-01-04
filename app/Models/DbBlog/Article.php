@@ -23,6 +23,7 @@ namespace App\Models\DbBlog;
 class Article extends BaseModel
 {
     protected $table='article';
+    protected $fillable = ['title', 'author', 'summary', 'content_md', 'content_html', 'tags_json', 'status'];
 
     const STATUS_DRAFT = 0;
     const STATUS_PUBLISHED = 1;
@@ -32,6 +33,23 @@ class Article extends BaseModel
      */
     public function tags(){
         return $this->belongsToMany('App\Models\DbBlog\Tag', 'article_tag_association', 'article_id', 'tag_id');
+    }
+
+    /**
+     * @return static
+     */
+    public static function getDefaultInstance(){
+        $model = new static;
+
+        $model->title = '';
+        $model->author = '';
+        $model->summary = '';
+        $model->content_md = '';
+        $model->content_html = '';
+        $model->tags_json = '';
+        $model->status = self::STATUS_DRAFT;
+
+        return $model;
     }
 
 }
