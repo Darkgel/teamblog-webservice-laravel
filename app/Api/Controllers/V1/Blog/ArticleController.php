@@ -46,12 +46,14 @@ class ArticleController extends V1Controller
      *                      @SWG\Property(property="id",type="integer",description="文章id",),
      *                      @SWG\Property(property="title",type="string",description="文章标题",),
      *                      @SWG\Property(property="author",type="string",description="文章作者",),
-     *                      @SWG\Property(property="updatedAt",type="integer",description="更新时间",),
-     *                      @SWG\Property(property="createdAt",type="integer",description="创建时间",),
+     *                      @SWG\Property(property="updatedAt",type="integer",description="更新时间（时间戳）",),
+     *                      @SWG\Property(property="createdAt",type="integer",description="创建时间（时间戳）",),
+     *                      @SWG\Property(property="deletedAt",type="integer",description="删除时间（时间戳）",),
      *                      @SWG\Property(property="summary",type="string",description="文章摘要",),
      *                      @SWG\Property(property="contentHtml",type="string",description="文章内容（html格式）",),
+     *                      @SWG\Property(property="contentMd",type="string",description="文章内容（markdown格式）",),
      *                      @SWG\Property(property="tagsJson",type="string",description="标签，json字符串",),
-     *                      @SWG\Property(property="status",type="integer", description="状态",),
+     *                      @SWG\Property(property="status",type="integer", description="状态，0=>草稿，1=>已发布",),
      *                 ),
      *              ),
      *          ),
@@ -88,13 +90,14 @@ class ArticleController extends V1Controller
         try{
             $pageNum = intval($request->query('pageNum', 1));
             $pageSize = intval($request->query('pageSize', 15));
+            $withDeleted = intval($request->query('withDeleted'), ArticleRepository::WITHOUT_DELETED);
 
             $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize;
             if(\Cache::has($cacheKey)){
                 $content = \Cache::get($cacheKey);
                 return $this->response->array($content);
             }
-            $articles = $articleRepository->getArticles($pageNum, $pageSize);
+            $articles = $articleRepository->getArticles($pageNum, $pageSize, $withDeleted);
 
             return $this->response
                 ->paginator($articles, new ArticleTransformer())
@@ -108,7 +111,6 @@ class ArticleController extends V1Controller
 
     public function save(ArticleRepository $articleRepository, Request $request){
         try{
-            $status = $request->post('status', Article::STATUS_DRAFT);
             $postData = $request->post();
             //校验数据有效性
             /** @var \Illuminate\Validation\Validator $validator*/
@@ -120,7 +122,7 @@ class ArticleController extends V1Controller
             ]);
             if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
 
-            if($articleRepository->save($postData, $status)){//业务逻辑执行成功
+            if($articleRepository->save($postData)){//业务逻辑执行成功
                 return $this->response->array([]);
             }else{
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);

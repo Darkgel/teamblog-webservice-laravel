@@ -83,13 +83,14 @@ class TagController extends V1Controller
         try{
             $pageNum = intval($request->query('pageNum', 1));
             $pageSize = intval($request->query('pageSize', 15));
+            $withDeleted = intval($request->query('withDeleted'), TagRepository::WITHOUT_DELETED);
 
             $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize;
             if(\Cache::has($cacheKey)){
                 $content = \Cache::get($cacheKey);
                 return $this->response->array($content);
             }
-            $tags = $tagRepository->getTags($pageNum, $pageSize);
+            $tags = $tagRepository->getTags($pageNum, $pageSize, $withDeleted);
 
             return $this->response
                 ->paginator($tags, new TagTransformer())

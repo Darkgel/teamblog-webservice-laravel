@@ -9,10 +9,9 @@
 namespace App\Repositories\Blog;
 
 use App\Models\DbBlog\Tag;
-use App\Repositories\AppRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class TagRepository extends AppRepository
+class TagRepository extends BaseRepository
 {
     /**
      * @param int $id 标签id
@@ -26,11 +25,17 @@ class TagRepository extends AppRepository
     /**
      * @param int $pageNum
      * @param int $pageSize
+     * @param int $withDeleted
      *
      * @return LengthAwarePaginator
      */
-    public function getTags($pageNum, $pageSize){
-        $models = Tag::paginate($pageSize, ['*'], 'pageNum', $pageNum);
+    public function getTags($pageNum, $pageSize, $withDeleted = self::WITHOUT_DELETED){
+        if($withDeleted === self::WITH_DELETED){
+            $models = Tag::withTrashed()->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        }else{
+            $models = Tag::paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        }
+
         return $models;
     }
 

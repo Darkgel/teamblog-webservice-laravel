@@ -29,6 +29,70 @@ class Article extends BaseModel
     const STATUS_PUBLISHED = 1;
 
     /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @param string $author
+     */
+    public function setAuthor(string $author): void
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * @param string $summary
+     */
+    public function setSummary(string $summary): void
+    {
+        $this->summary = $summary;
+    }
+
+    /**
+     * @param string $content_md
+     */
+    public function setContentMd(string $content_md): void
+    {
+        $this->content_md = $content_md;
+    }
+
+    /**
+     * @param string $content_html
+     */
+    public function setContentHtml(string $content_html): void
+    {
+        $this->content_html = $content_html;
+    }
+
+    /**
+     * @param string $tags_json
+     */
+    public function setTagsJson(string $tags_json): void
+    {
+        $this->tags_json = $tags_json;
+    }
+
+    /**
+     * @param int $status
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
      * 标签对象
      */
     public function tags(){

@@ -29,6 +29,7 @@ class ArticleTransformer extends AppTransformer
             'author' => $article->author,
             'updatedAt' => $article->updated_at->timestamp,
             'createdAt' => $article->created_at->timestamp,
+            'deletedAt' => $article->deleted_at->timestamp ?? null,
             'summary' => $article->summary,
             'contentMd' => $article->content_md,
             'contentHtml' => $article->content_html,
