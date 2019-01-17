@@ -25,8 +25,8 @@ class TagTransformer extends AppTransformer
     public function transform(Tag $tag){
         return [
             'id' => $tag->id,
-            'createdAt' => $tag->created_at->timestamp,
-            'updatedAt' => $tag->updated_at->timestamp,
+            'createdAt' => $tag->createdAt->timestamp,
+            'updatedAt' => $tag->updatedAt->timestamp,
             'name' => $tag->name,
             'description' => $tag->description,
         ];

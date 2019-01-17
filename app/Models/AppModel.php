@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $deleted_at
+ * @property \Illuminate\Support\Carbon $updatedAt
+ * @property \Illuminate\Support\Carbon $createdAt
+ * @property \Illuminate\Support\Carbon $deletedAt
  */
 class AppModel extends Model
 {
@@ -28,4 +28,14 @@ class AppModel extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+
+    // Allow for camelCased attribute access
+    public function getAttribute($key){
+        return parent::getAttribute(snake_case($key));
+    }
+
+    public function setAttribute($key, $value){
+        return parent::setAttribute(snake_case($key), $value);
+    }
 }
