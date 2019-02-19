@@ -118,12 +118,14 @@ class ArticleController extends V1Controller
                 'title' => 'required|max:255',
                 'author' => 'required|max:128',
                 'summary'=> 'max:512',
-                'tags' => 'array',
+                'status' => 'required|integer',
+                'tags' => 'string',
             ]);
             if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
 
-            if($articleRepository->save($postData)){//业务逻辑执行成功
-                return $this->response->array([]);
+            $article = $articleRepository->saveArticleWithTags($postData);
+            if(!is_null($article)){//业务逻辑执行成功
+                return $this->response->item($article, new ArticleTransformer());
             }else{
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
             }

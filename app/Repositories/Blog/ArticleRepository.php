@@ -8,8 +8,11 @@
 
 namespace App\Repositories\Blog;
 
+use App\Exceptions\SystemException;
 use App\Models\DbBlog\Article;
 use App\Models\DbBlog\Tag;
+use Carbon\Carbon;
+use Enum\ErrorCode;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArticleRepository extends BaseRepository
@@ -43,7 +46,7 @@ class ArticleRepository extends BaseRepository
     /**
      * @param array $articleData
      *
-     * @return bool
+     * @return Article | null
      */
     public function save($articleData){
         if(empty($articleData['id']) || intval($articleData['id'] < 1)){//新的文章
@@ -58,17 +61,6 @@ class ArticleRepository extends BaseRepository
 
         $model->status = intval($articleData['status']) ?? Article::STATUS_DRAFT;
 
-        //处理tag,提交的格式["2", "4", "5"](2,4,5分别为tag的id)
-//        $tagArray = Tag::whereIn('id', $articleData['tags'])->get();
-//        $tagsJsonArray = [];
-//        foreach ($tagArray as $tag){
-//            $tagsJsonArray[] = [
-//                'tg_id' => $tag->id,
-//                'tag_name' => $tag->name,
-//            ];
-//        }
-//        $model->tags_json = json_encode($tagsJsonArray, JSON_UNESCAPED_UNICODE);
-
         //处理summary,截取content_html的前200字
         if(empty($model->summary)){
             //先截取1000字
@@ -77,7 +69,55 @@ class ArticleRepository extends BaseRepository
             $model->summary = \mb_substr($subContent, 0 , 200) . '...';
         }
 
-        return $model->save();
+        return ($model->save()) ? $model : null;
+    }
+
+    /**
+     * 保存文章，同时建立文章与标签之间的关联
+     *
+     * @param array 包含tags数据的文章数组
+     *  eg ：
+     *      [
+     *          'title' => 'this is title',
+     *          'author' => 'darkgel',
+     *          ...
+     *          'tags' => '1,2,3'//tag id 字符串
+     *      ]
+     *
+     * @return Article | null
+     */
+    public function saveArticleWithTags($data){
+        try{
+            $newTagIdArray = [];
+            \DB::connection('db_blog')->beginTransaction();
+            if(isset($data['tags'])){
+                $newTagIdArrayTmp = explode(',', $data['tags']);
+                foreach($newTagIdArrayTmp as $tagIdString){
+                    $newTagIdArray[] = intval($tagIdString);
+                }
+                unset($data['tags']);
+            }
+            $article = $this->save($data);
+
+            //关联标签到文章
+            if(!is_null($article)){
+                $this->associateArticleWithTags($article, $newTagIdArray);
+                \DB::connection('db_blog')->commit();
+                return $article;
+            }
+
+            throw new SystemException(ErrorCode::SYSTEM_DB_WRITE_ERROR);
+
+        } catch (\Exception $e){
+            try{
+                \DB::connection('db_blog')->rollBack();
+            }catch(\Exception $e){
+                //记录日志
+                \Log::error($e->getMessage(), $e->getTrace());
+            }
+
+            return null;
+        }
     }
 
     /**
@@ -92,6 +132,51 @@ class ArticleRepository extends BaseRepository
             return $model->delete();
         } catch (\Exception $e){
             return false;
+        }
+    }
+
+    /**
+     * 关联文章与标签
+     * @param Article $article
+     * @param array $newTagIdArray
+     */
+    public function associateArticleWithTags($article, $newTagIdArray){
+        //先获得已经与该文章关联的tag id
+        $associatedTagIdsResult  = \DB::connection('db_blog')
+            ->table('article_tag_association')
+            ->where('article_id', $article->id)
+            ->get(['tag_id'])->toArray();
+
+        $associatedTagIdArray = [];
+        foreach ($associatedTagIdsResult as $item){
+            $associatedTagIdArray[] = $item->tag_id;
+        }
+
+        //需要添加的关联关系
+        $addAssociatedTagIdArray = array_diff($newTagIdArray, $associatedTagIdArray);
+        if(count($addAssociatedTagIdArray) > 0){
+            $insertAssociation = [];
+            foreach($addAssociatedTagIdArray as $tagId){
+                $insertAssociation[] = [
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                    'article_id' => $article->id,
+                    'tag_id' => \intval($tagId),
+                ];
+            }
+            \DB::connection('db_blog')
+                ->table('article_tag_association')
+                ->insert($insertAssociation);
+        }
+
+        //需要删除的关联关系
+        $deleteAssociatedTagIdArray = array_diff($associatedTagIdArray, $newTagIdArray);
+        if(count($deleteAssociatedTagIdArray) > 0){
+            \DB::connection('db_blog')
+                ->table('article_tag_association')
+                ->where('article_id', $article->id)
+                ->whereIn('tag_id', $deleteAssociatedTagIdArray)
+                ->delete();
         }
     }
 }

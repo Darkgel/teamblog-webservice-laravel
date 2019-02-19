@@ -117,11 +117,11 @@ class TagController extends V1Controller
                 'description' => 'max:1024'
             ]);
             if($validator->fails()) throw new BusinessException(ErrorCode::BUSINESS_INVALID_PARAM, "", $validator->errors()->toArray());
-
-            if($tagRepository->createTag($postData)){//业务逻辑执行成功
-                return $this->response->array([]);
-            }else{
+            $tag = $tagRepository->createTag($postData);
+            if(is_null($tag)){
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
+            }else{//业务逻辑执行成功
+                return $this->response->item($tag, new TagTransformer());
             }
 
         } catch (BusinessException $e){
@@ -169,6 +169,26 @@ class TagController extends V1Controller
             }else{
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
             }
+        } catch (BusinessException $e){
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    public function getSimilarTagsByTagName(TagRepository $tagRepository, Request $request, $tagName = ''){
+        try{
+            $limit = intval($request->query('limit', 10));
+            $cacheKey = __METHOD__."_"."tagName:".$tagName."_"."limit:".$limit;
+            if(\Cache::has($cacheKey)){
+                $content = \Cache::get($cacheKey);
+                return $this->response->array($content);
+            }
+            $tags = $tagRepository->getSimilarTagsByTagName($tagName, $limit);
+
+            return $this->response
+                ->collection($tags, new TagTransformer())
+                ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
+
         } catch (BusinessException $e){
             return $this->response->array($e->getExtra())
                 ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);

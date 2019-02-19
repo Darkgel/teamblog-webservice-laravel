@@ -43,12 +43,16 @@ class TagRepository extends BaseRepository
      * 创建标签
      * @param array $tagData
      *
-     * @return bool
+     * @return Tag | null
      */
     public function createTag($tagData){
         $model = Tag::getDefaultInstance();
         $model->fill($tagData);
-        return $model->save();
+        if($model->save()){
+            return $model;
+        }else{
+            return null;
+        }
     }
 
     /**
@@ -80,5 +84,12 @@ class TagRepository extends BaseRepository
         } catch (\Exception $e){
             return false;
         }
+    }
+
+    public function getSimilarTagsByTagName($tagName, $limit = 10){
+        $models = Tag::query()->where('name', 'like', '%'.$tagName.'%')
+            ->limit($limit)->get();
+
+        return $models;
     }
 }

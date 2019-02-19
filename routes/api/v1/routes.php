@@ -24,6 +24,7 @@ $api->version('v1', ['namespace' => 'App\Api\Controllers\V1', 'middleware' => ['
             $api->post('/', 'TagController@create');
             $api->put('{id}', 'TagController@update');
             $api->delete('{id}', 'TagController@delete');
+            $api->get('similarity/name/{tagName?}', 'TagController@getSimilarTagsByTagName');
         });
     });
 });
