@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Laravel\Passport\Http\Middleware\CheckClientCredentials;
 
 class Kernel extends HttpKernel
 {
@@ -45,7 +46,7 @@ class Kernel extends HttpKernel
         ],
 
         'api.common' => [
-            //'client',//校验access token
+            'client',//校验access token
             'businessFormatOutput',//标记请求，使响应格式化
         ]
     ];
@@ -68,6 +69,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
+        'client' => CheckClientCredentials::class,
         'businessFormatOutput' => \App\Http\Middleware\BusinessFormatOutput::class,
     ];
 

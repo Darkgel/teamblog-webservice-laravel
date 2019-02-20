@@ -64,7 +64,7 @@ class ArticleRepository extends BaseRepository
         //处理summary,截取content_html的前200字
         if(empty($model->summary)){
             //先截取1000字
-            $subContent = \mb_substr($model->content_html, 0, 100);
+            $subContent = \mb_substr($model->contentHtml, 0, 100);
             $subContent = \strip_tags($subContent);
             $model->summary = \mb_substr($subContent, 0 , 200) . '...';
         }
