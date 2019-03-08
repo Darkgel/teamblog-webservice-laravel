@@ -46,6 +46,7 @@ class Kernel extends HttpKernel
         ],
 
         'api.common' => [
+            'requestLogger',//记录请求日志
             'client',//校验access token
             'businessFormatOutput',//标记请求，使响应格式化
         ]
@@ -71,6 +72,7 @@ class Kernel extends HttpKernel
 
         'client' => CheckClientCredentials::class,
         'businessFormatOutput' => \App\Http\Middleware\BusinessFormatOutput::class,
+        'requestLogger' => \App\Http\Middleware\RequestLogger::class,
     ];
 
     /**

@@ -91,7 +91,14 @@ return [
 
         'sql' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/sql/laravel.log'),
+            'path' => storage_path('logs/sql/sql.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
+        'request' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/request/request.log'),
             'level' => 'debug',
             'days' => 14,
         ],
