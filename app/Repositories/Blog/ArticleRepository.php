@@ -35,9 +35,12 @@ class ArticleRepository extends BaseRepository
      */
     public function getArticles($pageNum, $pageSize, $withDeleted = self::WITHOUT_DELETED){
         if($withDeleted === self::WITH_DELETED){
-            $models = Article::withTrashed()->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+            $models = Article::withTrashed()
+                ->orderBy('created_at', 'desc')
+                ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
         } else {
-            $models = Article::paginate($pageSize, ['*'], 'pageNum', $pageNum);
+            $models = Article::orderBy('created_at', 'desc')
+                ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
         }
 
         return $models;
