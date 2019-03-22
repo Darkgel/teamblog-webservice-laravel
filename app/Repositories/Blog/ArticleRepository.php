@@ -182,4 +182,34 @@ class ArticleRepository extends BaseRepository
                 ->delete();
         }
     }
+
+    /**
+     * @param string $year
+     * @param int $pageNum
+     * @param int $pageSize
+     * @param int $withDeleted
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getArticlesArchive($year, $pageNum, $pageSize, $withDeleted){
+        $beginTimestamp = Carbon::create(intval($year), 1, 1, 0, 0, 0)->toDateTimeString();
+        $endTimestamp = Carbon::create(intval($year), 12, 31, 23, 59, 59)->toDateTimeString();
+
+        if($withDeleted === self::WITH_DELETED){
+            $models = Article::withTrashed()
+                ->where([
+                  ['created_at', '>=', $beginTimestamp],
+                  ['created_at', '<=', $endTimestamp],
+                ])->orderBy('created_at', 'desc')
+                ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        } else {
+            $models = Article::where([
+                ['created_at', '>=', $beginTimestamp],
+                ['created_at', '<=', $endTimestamp],
+            ])->orderBy('created_at', 'desc')
+            ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        }
+
+        return $models;
+    }
 }

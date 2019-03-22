@@ -92,7 +92,7 @@ class ArticleController extends V1Controller
             $pageSize = intval($request->query('pageSize', 15));
             $withDeleted = intval($request->query('withDeleted'), ArticleRepository::WITHOUT_DELETED);
 
-            $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize;
+            $cacheKey = __METHOD__."_"."pageNum:".$pageNum."_"."pageSize:".$pageSize."_"."withDeleted:".$withDeleted;
             if(\Cache::has($cacheKey)){
                 $content = \Cache::get($cacheKey);
                 return $this->response->array($content);
@@ -143,6 +143,33 @@ class ArticleController extends V1Controller
             }else{
                 throw new BusinessException(ErrorCode::BUSINESS_SERVER_ERROR);
             }
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 文章归档
+     * @param string year 年份
+     */
+    public function archive(ArticleRepository $articleRepository, Request $request, string $year){
+        try{
+            $pageNum = intval($request->query('pageNum', 1));
+            $pageSize = intval($request->query('pageSize', 15));
+            $withDeleted = intval($request->query('withDeleted'), ArticleRepository::WITHOUT_DELETED);
+
+            $cacheKey = __METHOD__."_pageNum:".$pageNum."_pageSize:".$pageSize."_withDeleted:".$withDeleted."_year:".$year;
+            if(\Cache::has($cacheKey)){
+                $content = \Cache::get($cacheKey);
+                return $this->response->array($content);
+            }
+            $articles = $articleRepository->getArticlesArchive($year, $pageNum, $pageSize, $withDeleted);
+
+            return $this->response
+                ->paginator($articles, new ArticleTransformer())
+                ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
 
         } catch (BusinessException $e) {
             return $this->response->array($e->getExtra())

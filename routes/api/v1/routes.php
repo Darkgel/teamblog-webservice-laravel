@@ -16,6 +16,7 @@ $api->version('v1', ['namespace' => 'App\Api\Controllers\V1', 'middleware' => ['
             $api->get('/', 'ArticleController@index');
             $api->post('/', 'ArticleController@save');
             $api->delete('{id}', 'ArticleController@delete');
+            $api->get('archive/{year}', 'ArticleController@archive');
         });
 
         $api->group(['prefix' => 'tags'], function (Router $api){
