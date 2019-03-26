@@ -9,7 +9,7 @@
 use Dingo\Api\Routing\Router;
 
 /** @var Dingo\Api\Routing\Router $api*/
-$api->version('v1', ['namespace' => 'App\Api\Controllers\V1', 'middleware' => ['api.common']], function (Router $api) {
+$api->version('v1', ['namespace' => 'App\Api\Controllers\V1'], function (Router $api) {
     $api->group(['namespace' => 'Blog', 'prefix' => 'blog'], function (Router $api){
         $api->group(['prefix' => 'articles'], function (Router $api){
             $api->get('{id}', 'ArticleController@detail');
@@ -17,6 +17,7 @@ $api->version('v1', ['namespace' => 'App\Api\Controllers\V1', 'middleware' => ['
             $api->post('/', 'ArticleController@save');
             $api->delete('{id}', 'ArticleController@delete');
             $api->get('archive/{year}', 'ArticleController@archive');
+            $api->get('tagged/{tagId}', 'ArticleController@getArticlesByTagId');
         });
 
         $api->group(['prefix' => 'tags'], function (Router $api){

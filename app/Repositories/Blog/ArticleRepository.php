@@ -212,4 +212,31 @@ class ArticleRepository extends BaseRepository
 
         return $models;
     }
+
+    /**
+     * @param int $tagId
+     * @param int $pageNum
+     * @param int $pageSize
+     * @param int $withDeleted
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getArticlesByTagId($tagId, $pageNum, $pageSize, $withDeleted){
+        if($withDeleted === self::WITH_DELETED){
+            $models = Article::withTrashed()
+                ->select('article.*')
+                ->join('article_tag_association', 'article_tag_association.article_id', '=', 'article.id')
+                ->where('article_tag_association.tag_id', $tagId)
+                ->orderBy('article.created_at', 'desc')
+                ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        } else {
+            $models = Article::join('article_tag_association', 'article_tag_association.article_id', '=', 'article.id')
+                ->select('article.*')
+                ->where('article_tag_association.tag_id', $tagId)
+                ->orderBy('article.created_at', 'desc')
+                ->paginate($pageSize, ['*'], 'pageNum', $pageNum);
+        }
+
+        return $models;
+    }
 }

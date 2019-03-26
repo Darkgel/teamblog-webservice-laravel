@@ -176,4 +176,28 @@ class ArticleController extends V1Controller
                 ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
         }
     }
+
+    public function getArticlesByTagId(ArticleRepository $articleRepository, Request $request, $tagId){
+        try{
+            $tagId = intval($tagId);
+            $pageNum = intval($request->query('pageNum', 1));
+            $pageSize = intval($request->query('pageSize', 15));
+            $withDeleted = intval($request->query('withDeleted'), ArticleRepository::WITHOUT_DELETED);
+
+            $cacheKey = __METHOD__."_pageNum:".$pageNum."_pageSize:".$pageSize."_withDeleted:".$withDeleted."_tagId:".$tagId;
+            if(\Cache::has($cacheKey)){
+                $content = \Cache::get($cacheKey);
+                return $this->response->array($content);
+            }
+            $articles = $articleRepository->getArticlesByTagId($tagId, $pageNum, $pageSize, $withDeleted);
+
+            return $this->response
+                ->paginator($articles, new ArticleTransformer())
+                ->header(self::CACHE_KEY_AND_TIME_HEADER, [$cacheKey]);
+
+        } catch (BusinessException $e) {
+            return $this->response->array($e->getExtra())
+                ->header(self::BUSINESS_STATUS_HEADER, [$e->getCode(), $e->getMessage()]);
+        }
+    }
 }

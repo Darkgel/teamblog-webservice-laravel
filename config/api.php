@@ -155,7 +155,9 @@ return [
     */
 
     'middleware' => [
-
+        \App\Http\Middleware\RequestLogger::class,//记录请求日志
+        \App\Http\Middleware\BusinessFormatOutput::class,//标记请求，使响应格式化
+        \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,//校验access token
     ],
 
     /*

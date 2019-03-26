@@ -44,12 +44,6 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
-
-        'api.common' => [
-            'requestLogger',//记录请求日志
-            'client',//校验access token
-            'businessFormatOutput',//标记请求，使响应格式化
-        ]
     ];
 
     /**
