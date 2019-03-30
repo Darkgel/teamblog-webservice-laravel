@@ -46,6 +46,19 @@ return [
             'strict' => true,
         ],
 
+        'db_passport' => [
+            'driver' => 'mysql',
+            'host' => env('DB_PASSPORT_HOST', '127.0.0.1'),
+            'port' => env('DB_PASSPORT_PORT', '3306'),
+            'database' => env('DB_PASSPORT_DATABASE', 'database'),
+            'username' => env('DB_PASSPORT_USERNAME', 'username'),
+            'password' => env('DB_PASSPORT_PASSWORD', ''),
+            'unix_socket' => env('DB_PASSPORT_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
     ],
 
     /*
