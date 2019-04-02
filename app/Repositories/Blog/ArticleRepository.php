@@ -52,14 +52,15 @@ class ArticleRepository extends BaseRepository
      * @return Article | null
      */
     public function save($articleData){
-        if(empty($articleData['id']) || intval($articleData['id'] < 1)){//新的文章
+        if(empty($articleData['id']) || intval($articleData['id']) < 1){//新的文章
             /** @var Article $model */
             $model = Article::getDefaultInstance();
         }else{
             /** @var Article $model */
             $model = Article::find(intval($articleData['id']));
         }
-        unset($articleData['id']);
+
+        if(!empty($articleData['id'])) unset($articleData['id']);
         $model->fill($articleData);
 
         $model->status = intval($articleData['status']) ?? Article::STATUS_DRAFT;
