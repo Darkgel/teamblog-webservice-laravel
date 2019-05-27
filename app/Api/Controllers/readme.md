@@ -1,0 +1,9 @@
+### Controllers目录说明（Controller层）
+1. Controller层，所有api的控制器放在该目录下，按版本分类（V1，V2...），版本目录下按照业务分类
+2. Controller层的职责：
+    - 校验输入
+    - 处理请求&构造响应
+    - 调用Transformer层、Service层、Repository层，但不应该在Controller中包含任何业务逻辑
+3. 在各个版本目录之下（V1，V2...）,按照业务将Controller分到不同的子目录中（eg：Blog，Marketing...），而不是按照数据库进行划分，虽然按照业务划分与按照数据库划分的结果可能一样
+4. 每个版本目录下有一个版本控制器（eg:V1Controller）,该版本下的所有控制器需要继承自该控制器。版本控制器必须继承自App\Http\Controllers\ApiController
+5. 按照业务划分的控制器子目录中应该有一个控制器基类（eg：BaseController），所有该目录下的控制器继承自该基类控制器
